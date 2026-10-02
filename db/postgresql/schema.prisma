@@ -125,8 +125,11 @@ model Guild {
     id            String     @id @db.VarChar(19)
     locale        String     @default("en-GB")
     logChannel    String?    @db.VarChar(19)
+    orderChannelId String?   @db.VarChar(19)
+    orders        Order[]
     primaryColour String     @default("#009999")
     staleAfter    Int?
+    stickyMessages StickyMessage[]
     successColour String     @default("Green")
     tags          Tag[]
     tickets       Ticket[]
@@ -233,6 +236,35 @@ model User {
     questionAnswers QuestionAnswer[]
 
     @@map("users")
+}
+
+model Order {
+    id          Int       @id @default(autoincrement())
+    createdAt   DateTime  @default(now()) @db.Timestamp(3)
+    createdById String    @db.VarChar(19)
+    details     String    @db.Text
+    status      String    @default("OPEN")
+    claimedById String?   @db.VarChar(19)
+    claimedAt   DateTime? @db.Timestamp(3)
+    channelId   String    @db.VarChar(19)
+    messageId   String?   @db.VarChar(19)
+    guildId     String    @db.VarChar(19)
+    guild       Guild     @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+    @@index([guildId, status, createdAt])
+    @@map("orders")
+}
+
+model StickyMessage {
+    channelId String   @db.VarChar(19)
+    content   String   @db.Text
+    createdAt DateTime @default(now()) @db.Timestamp(3)
+    guildId   String   @db.VarChar(19)
+    messageId String   @db.VarChar(19)
+    guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+    @@id([guildId, channelId])
+    @@map("stickyMessages")
 }
 
 enum TicketPriority {

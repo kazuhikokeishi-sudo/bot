@@ -126,7 +126,10 @@ model Guild {
     locale        String     @default("en-GB")
     logChannel    String?
     primaryColour String     @default("#009999")
+    orderChannelId String?
+    orders        Order[]
     staleAfter    Int?
+    stickyMessages StickyMessage[]
     successColour String     @default("Green")
     tags          Tag[]
     tickets       Ticket[]
@@ -233,4 +236,33 @@ model User {
     questionAnswers QuestionAnswer[]
 
     @@map("users")
+}
+
+model Order {
+    id          Int      @id @default(autoincrement())
+    createdAt   DateTime @default(now())
+    createdById String
+    details     String
+    status      String   @default("OPEN")
+    claimedById String?
+    claimedAt   DateTime?
+    channelId   String
+    messageId   String?
+    guildId     String
+    guild       Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+    @@index([guildId, status, createdAt])
+    @@map("orders")
+}
+
+model StickyMessage {
+    channelId String
+    content   String
+    createdAt DateTime @default(now())
+    guildId   String
+    messageId String
+    guild     Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+
+    @@id([guildId, channelId])
+    @@map("stickyMessages")
 }
