@@ -33,7 +33,8 @@ ENV USER=container \
 	HOME=/home/container \
 	NODE_ENV=production \
 	HTTP_HOST=0.0.0.0 \
-	DOCKER=true
+	DOCKER=true \
+	NODE_OPTIONS=--max-old-space-size=512
 
 WORKDIR /home/container
 
@@ -42,3 +43,4 @@ COPY --from=builder --chown=container:container --chmod=777 /build /app
 ENTRYPOINT [ "/app/scripts/start.sh" ]
 HEALTHCHECK --interval=15s --timeout=5s --start-period=60s \
 	CMD curl -f http://localhost:${HTTP_PORT}/status || exit 1
+
